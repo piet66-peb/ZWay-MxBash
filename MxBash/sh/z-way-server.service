@@ -1,0 +1,30 @@
+# z-way-server.service: systemd configuration file
+# documentation:
+# https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html
+#
+# change start manager from SysVinit(init.d) to Systemd(systemctl):
+# - PROC=z-way-server
+# - sudo /etc/init.d/$PROC stop
+# - sudo cp ./$PROC.service /etc/systemd/system/
+# - sudo rm /etc/init.d/$PROC
+# - sudo systemctl daemon-reload
+# - sudo systemctl enable $PROC
+# - sudo systemctl start $PROC
+# - sudo systemctl status $PROC
+
+[Unit]
+Description=Z-Way Server
+After=syslog.target
+
+[Service]
+User=root
+Group=root
+Environment=PATH=/bin:/usr/bin:/sbin:/usr/sbin
+WorkingDirectory=/opt/z-way-server
+ExecStart=/opt/z-way-server/z-way-server
+#Restart=always
+#RestartSec=2min
+
+[Install]
+WantedBy=multi-user.target
+

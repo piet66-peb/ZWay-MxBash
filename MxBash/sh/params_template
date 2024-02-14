@@ -1,0 +1,22 @@
+#!/bin/bash
+#h-------------------------------------------------------------------------------
+#h
+#h Name:         params
+#h Type:         Linux shell script
+#h Purpose:      parameters for zway.bash
+#h Project:      z-Way Homeserver
+#h Installation: rename the file params_template to params
+#h               and enter your parameters
+#h
+#h-------------------------------------------------------------------------------
+
+# adminstrator login for to request jobqueue via curl:
+USERPW=admin:secret
+
+# backup folder for backup function:
+BACKUP_PATH=/media/ZWay_USB/backup
+
+# for use with MxMQTT Subscriber and MxMQTT Publisher:
+MQTT_PORT='1883'     
+# separate multiple ports by space
+

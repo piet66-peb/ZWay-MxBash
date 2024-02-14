@@ -1,0 +1,24 @@
+{
+   "author" : "piet66",
+   "homepage": "https://github.com/piet66-peb?tab=repositories",
+   "repository": {
+         "type": "git",
+         "source": "https://github.com/piet66-peb/ZWay-MxBash"
+   },
+   "category" : "developers_stuff",
+   "defaults" : {
+      "description" : "__m_descr__",
+      "title" : "__m_title__"
+   },
+   "dependencies" : [],
+   "icon" : "icon.png",
+   "maturity" : "beta",
+   "moduleName" : "MxBash",
+   "singleton" : true,
+   "version" : "2.1.0",
+   "options" : {
+   },
+   "schema" : {
+   }
+}
+
