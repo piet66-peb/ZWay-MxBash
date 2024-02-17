@@ -33,7 +33,7 @@
 #h                   up-downgrade    up-downgrade z-way
 #h                   devices         known zwave devices
 #h               if MxBaseModule is used:
-#h                   lock            lock all Mx modules for running after next 
+#h                   lock            lock all Mx modules for running at next 
 #h                                   start, useful e.g. for z-way up-downgrades 
 #h                                   without starting the user apps
 #h                   unlock          reset lock of all Mx modules
@@ -43,7 +43,7 @@
 #h Resources:    bashmenu.bash, whiptail
 #h Platforms:    Linux
 #h Authors:      peb piet66
-#h Version:      V3.0.0 2024-02-14/peb
+#h Version:      V3.0.0 2024-02-17/peb
 #v History:      V1.0.0 2017-02-03/peb first version
 #h Copyright:    (C) piet66 2017
 #h
@@ -51,7 +51,7 @@
 
 MODULE='zway.bash'
 VERSION='V3.0.0'
-WRITTEN='2024-02-14/peb'
+WRITTEN='2024-02-17/peb'
 
 #------------
 #b Parameters
@@ -114,7 +114,7 @@ SERVICE_MANAGER=    #Systemd|SysVinit
 #b Functions
 #-----------
 function get_LOCKED () {
-    if [ -e $LOCKED_FILE ]
+    if  [ "$MXLOCK" == "yes" ] && [ -e $LOCKED_FILE ]
     then
         [ ! -f $LOCKED_FILE ] && echo no>$LOCKED_FILE
         cat $LOCKED_FILE
@@ -339,8 +339,11 @@ case $PARAM1 in
             done
         fi
 
-        echo ''
-        $0 jobcount
+        if [ "$USERPW" != "" ]
+        then
+            echo ''
+            $0 jobcount
+        fi
         echo ''
         if [ $(service_running $SERVICE) != $NO ]
         then
@@ -371,7 +374,7 @@ case $PARAM1 in
     jobqueue) 
         if [ "$USERPW" == '' ]
         then
-            echo 'parameter $USERPW is not defined'
+            echo 'parameter $USERPW must be defined to get jobqueue'
         elif [ $(service_running $SERVICE) != $NO ]
         then
             echo 'jobqueue:'
@@ -520,7 +523,7 @@ case $PARAM1 in
     backup) 
         if [ "$BACKUP_PATH" == '' ]
         then
-            echo 'parameter $BACKUP_PATH is not defined'
+            echo 'parameter $BACKUP_PATH must be defined for backup and restore'
         else
             SOURCE_FOLDER=z-way-server
             VERS_CURR=`cd /opt/z-way-server; LD_LIBRARY_PATH=./libs ./z-way-server -h 2>/dev/null | head -n 1 | cut -d' ' -f3`
@@ -559,7 +562,7 @@ case $PARAM1 in
     restore) 
         if [ "$BACKUP_PATH" == '' ]
         then
-            echo 'parameter $BACKUP_PATH is not defined'
+            echo 'parameter $BACKUP_PATH must be defined for backup and restore'
         else
             SOURCE_FOLDER=z-way-server
             VERS_CURR=`cd /opt/z-way-server; LD_LIBRARY_PATH=./libs ./z-way-server -h 2>/dev/null | head -n 1 | cut -d' ' -f3`

@@ -19,7 +19,7 @@ Z-Way.
 ## Installation
 
 - download the package from the Z-Way App Store
-- make the bash scripts executable, if they aren't
+- make the bash scripts executable, if they aren't (sudo chmod a+x *.bash)
 - rename the file **params_template** to **params** and enter your data
   (necessary for some functions)
 - for convenient call of zway.bash without path add this to your **~/.profile**:
@@ -29,7 +29,7 @@ Z-Way.
 ## Start/Stop Management
 
 This scripts can use the new start/ stop mechanism **systemd**, availabe in
-many current Linux versions. To take 
+many current Linux distributions. To take 
 advantage of the benefits, follow the installation instructions in the 
 **z-way-server.service** file.
 
