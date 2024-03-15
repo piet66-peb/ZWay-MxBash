@@ -12,9 +12,10 @@
 #h Resources:    
 #h Platforms:    Linux
 #h Authors:      peb piet66
-#h Version:      V1.0.0 2023-12-24/peb
+#h Version:      V1.0.0 2024-02-28/peb
 #v History:      V1.0.0 2023-09-24/peb first version
 #h Copyright:    (C) piet66 2022
+#h License:      http://opensource.org/licenses/MIT
 #h
 #h-------------------------------------------------------------------------------
 
@@ -22,7 +23,7 @@
 #-----------
 MODULE='zway_cpu.bash'
 VERSION='V1.0.0'
-WRITTEN='2023-12-24/peb'
+WRITTEN='2024-02-28/peb'
 
 SERVICE='z-way-server'
 FORMAT='%20s %5s %5s %10s %10s %10s %s\n'
@@ -84,6 +85,9 @@ compute_percent() {
 
 #b Commands
 #----------
+cd /opt/z-way-server; LD_LIBRARY_PATH=./libs ./z-way-server -h 2>/dev/null | head -n 1
+echo ''
+
 procid=`pidof $SERVICE`
 echo process id of $SERVICE: $procid
 echo ''

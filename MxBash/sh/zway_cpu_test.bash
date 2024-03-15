@@ -12,9 +12,10 @@
 #h Resources:    
 #h Platforms:    Linux
 #h Authors:      peb piet66
-#h Version:      V1.0.0 2023-09-24/peb
+#h Version:      V1.0.0 2024-02-25/peb
 #v History:      V1.0.0 2022-08-14/peb first version
 #h Copyright:    (C) piet66 2022
+#h License:      http://opensource.org/licenses/MIT
 #h
 #h-------------------------------------------------------------------------------
 
@@ -22,7 +23,7 @@
 #-----------
 MODULE='zway_cpu_test.bash'
 VERSION='V1.0.0'
-WRITTEN='2023-09-24/peb'
+WRITTEN='2024-02-25/peb'
 
 zway='z-way-server'
 

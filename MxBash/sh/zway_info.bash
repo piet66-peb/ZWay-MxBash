@@ -12,7 +12,7 @@
 #h Resources:    
 #h Platforms:    Linux
 #h Authors:      peb piet66
-#h Version:      V1.2.1 2023-10-30/peb
+#h Version:      V1.2.1 2024-02-25/peb
 #v History:      V1.0.0 2019-10-17/peb first version
 #h Copyright:    (C) piet66 2022
 #h License:      http://opensource.org/licenses/MIT
@@ -22,8 +22,9 @@
 #-----------
 #b Constants
 #-----------
+MODULE='zway_info.bash'
 VERSION='V1.2.1'
-WRITTEN='2023-10-30/peb'
+WRITTEN='2024-02-25/peb'
 
 #-----------
 #b Variables

@@ -9,49 +9,49 @@
 #h               - make them executable: sudo chmod a+x *.bash
 #h               - rename the file params_template to params
 #h                 and enter your parameters
-#h Hint:         zway.bash uses systemd (systemctl) to start the z-way-server.
 #h Usage:        with calling the menu:
 #h                   ./zway.bash
 #h               without calling the menu:
 #h                   ./zway.bash <function>
 #h               available functions:
-#h                   status          print important states of z-way-server
-#h                   details         print detail data of z-way-server processes
-#h                   cpu             cpu load of z-way-server
-#h                   top             top z-way-server
-#h                   jobqueue        print current contents of job queue
-#h                   system          print important system data (HW + SW)
-#h                   start           start z-way-server
-#h                   stop            stop z-way-server
-#h                   restart         restart z-way-server
-#h                   manually        start z-way-server manually in foreground
-#h                   logrotate       force rotate of z-way-server log
-#h                                   (start a new file in /var/logs/)
-#h                   backup          backup current z-way-server folder (whole tree)
-#h                   restore         restore the z-way-server folder from backup 
-#h                                   archive
-#h                   up-downgrade    up-downgrade z-way
-#h                   devices         known zwave devices
+#h                   status            print important states of z-way-server
+#h                   details           print detail data of z-way-server processes
+#h                   cpu               cpu load of z-way-server
+#h                   top               top z-way-server
+#h                   jobqueue          print current contents of job queue
+#h                   system            print important system data (HW + SW)
+#h                   start             start z-way-server
+#h                   stop              stop z-way-server
+#h                   run_in_foreground run z-way-server in foreground
+#h                   logrotate         force rotate of z-way-server log
+#h                                     (start a new file in /var/logs/)
+#h                   backup            backup current z-way-server folder (whole tree)
+#h                   restore           restore the z-way-server folder from backup 
+#h                                     archive
+#h                   up-downgrade      up-downgrade z-way
+#h                   devices           known zwave devices
+#h                   reboot            reboot operating system
 #h               if MxBaseModule is used:
-#h                   lock            lock all Mx modules for running at next 
-#h                                   start, useful e.g. for z-way up-downgrades 
-#h                                   without starting the user apps
-#h                   unlock          reset lock of all Mx modules
+#h                   lock              lock all Mx modules for running at next 
+#h                                     start, useful e.g. for z-way up-downgrades 
+#h                                     without starting the user apps
+#h                   unlock            reset lock of all Mx modules
 #h Result:       
 #h Examples:     
 #h Outline:      
 #h Resources:    bashmenu.bash, whiptail
 #h Platforms:    Linux
 #h Authors:      peb piet66
-#h Version:      V3.0.0 2024-02-17/peb
+#h Version:      V3.0.0 2024-03-15/peb
 #v History:      V1.0.0 2017-02-03/peb first version
 #h Copyright:    (C) piet66 2017
+#h License:      http://opensource.org/licenses/MIT
 #h
 #h-------------------------------------------------------------------------------
 
 MODULE='zway.bash'
 VERSION='V3.0.0'
-WRITTEN='2024-02-17/peb'
+WRITTEN='2024-03-15/peb'
 
 #------------
 #b Parameters
@@ -106,9 +106,10 @@ ret=0
 ZWAY_DIR=${ZWAY_DIR}/
 ZWAY_FILE=$_self
 
-SYSTEMD=Systemd
-SYSVINIT=SysVinit
-SERVICE_MANAGER=    #Systemd|SysVinit
+SYSTEMD='Systemd-systemctl'
+SYSTEMD_GEN='Systemd-generated(init.d)'
+SYSVINIT='SysVinit-init.d'
+SERVICE_MANAGER=    # $SYSTEMD|$SYSVINIT|$SYSTEMD_GEN
 
 #-----------
 #b Functions
@@ -123,20 +124,41 @@ function get_LOCKED () {
 
 function service_manager
 {
-    sudo systemctl --no-pager status $1.service >/dev/null 2>&1
-    # 4 = not found
-    # 0 = found
-    if [ $? -eq 4 ]
+    if [ $(service_running $SERVICE) -eq $YES ]
     then
-        echo $SYSVINIT
+        count=`sudo systemctl status $SERVICE.service --no-pager 2>&1 | grep 'active (running)' -c`
+        if [ "$count" != "0" ]
+        then
+            count=`sudo systemctl status $SERVICE.service --no-pager 2>&1 | grep 'init.d' -c`
+            if [ "$count" != "0" ]
+            then
+                echo $SYSTEMD_GEN
+            else
+                echo $SYSTEMD
+            fi
+        else
+            echo $SYSVINIT
+        fi
     else
-        echo $SYSTEMD
+        f=/etc/systemd/system/${SERVICE}.service
+        if [ -e $f ]
+        then
+            echo $SYSTEMD
+        else
+            count=`sudo systemctl status $SERVICE.service --no-pager 2>&1 | grep 'init.d' -c`
+            if [ "$count" != "0" ]
+            then
+                echo $SYSTEMD_GEN
+            else
+                echo $SYSVINIT
+            fi
+        fi
     fi
 }
 
 function service_running
 {
-    procid=`pidof $1`
+    procid=`pidof $SERVICE`
     ret=$YES
     [ "$procid" == '' ] && ret=$NO
     echo $ret
@@ -146,17 +168,17 @@ function manage_service
 {
     if [ "$2" == "start" ]
     then
-        if [ $(service_running $1) -eq $NO ]
+        if [ $(service_running $SERVICE) -eq $NO ]
         then
-            if [ $(service_manager $1) == $SYSTEMD ]
+            if [ $(service_manager $SERVICE) != $SYSVINIT ]
             then
-                echo sudo systemctl enable $1.service
-                sudo systemctl $2 $1.service >/dev/null 2>&1
-                echo sudo systemctl $2 $1.service
-                sudo systemctl $2 $1.service >/dev/null 2>&1
+                echo -e "\n"sudo systemctl enable $SERVICE.service
+                sudo systemctl enable $SERVICE.service >/dev/null 2>&1
+                echo -e "\n"sudo systemctl start $SERVICE.service
+                sudo systemctl start $SERVICE.service >/dev/null 2>&1
             else
-                echo sudo /etc/init.d/$1 start
-                sudo /etc/init.d/$1 stop  >/dev/null 2>&1
+                echo -e "\n"sudo /etc/init.d/$SERVICE start
+                sudo /etc/init.d/$SERVICE start  >/dev/null 2>&1
             fi
 
             # for automatic restart if crashed:
@@ -167,24 +189,17 @@ function manage_service
         fi
     elif [ "$2" == "stop" ]
     then
-        if [ $(service_running $1) -eq $YES ]
+        if [ $(service_running $SERVICE) -eq $YES ]
         then
-            #check if started by systemctl or init.d:
-            sudo systemctl --no-pager status $1.service | grep "active (running)" > /dev/null
-            # 1 = not found
-            # 0 = found
-
-            if [ $? -eq 0 ]
+            if [ $(service_manager $SERVICE) != $SYSVINIT ]
             then
-                echo sudo systemctl $2 $1.service
-                sudo systemctl $2 $1.service >/dev/null 2>&1
-                echo sudo systemctl disable $1.service
-                sudo systemctl $2 $1.service >/dev/null 2>&1
+                echo -e "\n"sudo systemctl stop $SERVICE.service
+                sudo systemctl stop $SERVICE.service >/dev/null 2>&1
+                echo -e "\n"sudo systemctl disable $SERVICE.service
+                sudo systemctl disable $SERVICE.service >/dev/null 2>&1
             else
-                echo sudo systemctl disable $1.service
-                sudo systemctl $2 $1.service >/dev/null 2>&1
-                echo sudo /etc/init.d/$1 stop
-                sudo /etc/init.d/$1 stop  >/dev/null 2>&1
+                echo -e "\n"sudo /etc/init.d/$SERVICE stop
+                sudo /etc/init.d/$SERVICE stop  >/dev/null 2>&1
             fi
         fi
             
@@ -209,71 +224,6 @@ function get_backups
     done
 }
 
-function get_core_dump
-{
-    echo ''
-    sudo sysctl kernel.core_pattern
-    CORE_PATTERN=`sudo sysctl kernel.core_pattern | sed 's/.*= \(.*\)/\1/' | cut -d \| -f 2`
-    if [[ ! "$CORE_PATTERN" == *\/* ]]  #no path >> curr folder
-    then
-        CORE_DIR="$SERVICE_PATH"
-        CORE_FIL_PATTERN="$CORE_PATTERN"
-        if [ -e "$CORE_DIR/$CORE_PATTERN" ]
-        then
-            echo core dump found: 
-            ls -l "$CORE_DIR/$CORE_PATTERN"
-            echo examine with: gdb "$SERVICE" -c "$CORE_DIR/$CORE_PATTERN" + where + bt full
-            echo remove core dump to get a new one, it will never be overwritten
-
-            print_core_dump > print_core_dump.output
-        else
-            echo no core dump found
-        fi
-    #else 
-    fi
-}
-
-function print_core_dump
-{
-    echo ''
-    sudo sysctl kernel.core_pattern
-    CORE_PATTERN=`sudo sysctl kernel.core_pattern | sed 's/.*= \(.*\)/\1/' | cut -d \| -f 2`
-    if [[ ! "$CORE_PATTERN" == *\/* ]]  #no path >> curr folder
-    then
-        CORE_DIR="$SERVICE_PATH"
-        CORE_FIL_PATTERN="$CORE_PATTERN"
-        if [ -e "$CORE_DIR/$CORE_PATTERN" ]
-        then
-            echo core dump found: 
-            ls -l "$CORE_DIR/$CORE_PATTERN"
-            echo examine with: gdb "$SERVICE" -c "$CORE_DIR/$CORE_PATTERN" + where + bt full
-            echo remove core dump to get a new one, it will never be overwritten
-
-            echo ''
-            echo file "$CORE_DIR/$CORE_PATTERN"
-            file "$CORE_DIR/$CORE_PATTERN"
-
-            echo ''
-            echo gdb "$SERVICE_PATH/$SERVICE" "$CORE_DIR/$CORE_PATTERN"
-            gdb "$SERVICE_PATH/$SERVICE" "$CORE_DIR/$CORE_PATTERN" <<EOF
-where
-bt full
-quit
-EOF
-            echo ''
-            echo readelf -Wa "$CORE_DIR/$CORE_PATTERN"
-            readelf -Wa "$CORE_DIR/$CORE_PATTERN"
-
-            echo ''
-            echo coredumpctl --no-pager --quiet dump /usr/bin/roger
-            coredumpctl --no-pager --quiet dump "$SERVICE_PATH/$SERVICE"
-        else
-            echo no core dump found
-        fi
-    #else 
-    fi
-}
-
 #----------
 #b Commands
 #----------
@@ -290,19 +240,23 @@ case $PARAM1 in
         if [ $(service_running $SERVICE) -eq $YES ]
         then
             echo $SERVICE is running
-            #check if started by systemctl or init.d:
-            sudo systemctl --no-pager status $SERVICE.service | grep "active (running)" > /dev/null
-            # 1 = not found
-            # 0 = found
-            [ $? -eq 1 ] && echo started by init.d
+
+            count=`pidof $SERVICE | wc -w`
+            if [ $count -gt 1 ]
+            then
+                echo ''
+                echo "warning: $SERVICE is running $count times !!!"
+                ps aux | grep "$SERVICE" | grep -v grep | grep -v '/z-way-server'
+                echo ''
+            fi
         else
             echo $SERVICE is not running
         fi
-        echo startmanager: $(service_manager $SERVICE)
         f=/etc/init.d/$SERVICE
         [ -e $f ] && echo $f existing
         f=/etc/systemd/system/${SERVICE}.service
         [ -e $f ] && echo $f existing
+        echo startmanager: $(service_manager $SERVICE)
 
         CONFIG=/opt/z-way-server/config.xml
         LOG_LEVEL=`grep  log-level $CONFIG`
@@ -351,10 +305,18 @@ case $PARAM1 in
             ps -p $procid -o %cpu,%mem,cmd
         fi
 
-        #get_core_dump
+        echo ''
+        if [ $(service_running $SERVICE) == $NO ] && 
+           [ -e ${ZWAY_DIR}zway_threads.bash ]
+        then
+            ${ZWAY_DIR}zway_threads.bash
+        fi
         ;;
     details) 
-        if [ "$(service_manager $SERVICE)" == $SYSTEMD ]
+        sudo systemctl --no-pager status $SERVICE >/dev/null 2>&1
+        # 4 = not found
+        # 0 = found
+        if [ $? -eq 0 ]
         then
             systemctl --no-pager status $SERVICE --no-pager -l
 
@@ -495,19 +457,17 @@ case $PARAM1 in
         manage_service $SERVICE stop
         ret=$?
         ;;
-    restart) 
-        echo stopping $SERVICE...
-        manage_service $SERVICE stop
-        sleep 3
-        echo starting $SERVICE...
-        manage_service $SERVICE start
-        ret=$?
-        ;;
-    manually) 
+    run_in_foreground) 
+        read -p "Really run $SERVICE in foreground? [y,N] " CONT
+        case ${CONT:-N} in
+            ([Yy]) ;;
+            ([Nn]) exit 200;;
+            (*)    exit 200;;
+            esac
+
         pushd $SERVICE_PATH >/dev/null 2>&1
-        echo starting $SERVICE manually in foreground...
-        echo  LD_LIBRARY_PATH=libs ./z-way-server
-        LD_LIBRARY_PATH=libs ./z-way-server
+            echo  LD_LIBRARY_PATH=libs ./z-way-server
+            LD_LIBRARY_PATH=libs ./z-way-server
         popd 2>&1
         ;;
     lock) 
@@ -525,6 +485,12 @@ case $PARAM1 in
         then
             echo 'parameter $BACKUP_PATH must be defined for backup and restore'
         else
+            if [ $(service_running $SERVICE) -eq $YES ]
+            then
+                echo stop service $SERVICE first, break!
+                exit 1
+            fi
+
             SOURCE_FOLDER=z-way-server
             VERS_CURR=`cd /opt/z-way-server; LD_LIBRARY_PATH=./libs ./z-way-server -h 2>/dev/null | head -n 1 | cut -d' ' -f3`
             TS=`date +%s`
@@ -538,7 +504,17 @@ case $PARAM1 in
                 echo "backup folder $BACKUP_PATH"
             else
                 read -p "backup folder $BACKUP_PATH is not existing, create? [Y,n] " CONT
-                [ "$CONT" != "" ] && [ "$CONT" != "Y" ] && exit 200
+                case ${CONT:-Y} in
+                    ([Yy]) ;;
+                    ([Nn]) exit 200;;
+                    (*)    exit 200;;
+                esac
+
+                if [ -e $MXWATCHDOG ]
+                then
+                    rm -f $WDOG_ACTIVE
+                fi
+
                 mkdir -pv "$BACKUP_PATH"
                 ret=$?
                 [ $ret -ne 0 ] && exit $ret
@@ -546,8 +522,14 @@ case $PARAM1 in
             fi
     
             BACKUP_FILE=${SOURCE_FOLDER}_${TS}_${VERS_CURR}.tar.gz
+
             read -p  "back up $SOURCE_FOLDER to ${BACKUP_FILE}? [Y,n] " CONT
-            [ "$CONT" != "" ] && [ "$CONT" != "Y" ] && exit 200
+            case ${CONT:-Y} in
+                ([Yy]) ;;
+                ([Nn]) exit 200;;
+                (*)    exit 200;;
+            esac
+
             pushd /opt/ >/dev/null 2>&1
                 if [ -h "$SOURCE_FOLDER" ]
                 then
@@ -556,6 +538,15 @@ case $PARAM1 in
                 fi
                 sudo tar -cvzf $BACKUP_PATH/${BACKUP_FILE} $SOURCE_FOLDER
                 ret=$?
+                if [ "$ret" -eq 0 ]
+                then
+                    #create contents file
+                    contents_backup=${ZWAY_DIR}contents_backup.bash
+                    if [ -x "$contents_backup" ]
+                    then
+                        "$contents_backup" "$BACKUP_PATH/${BACKUP_FILE}"
+                    fi
+                fi
             popd >/dev/null 2>&1
         fi
         ;;
@@ -563,6 +554,9 @@ case $PARAM1 in
         if [ "$BACKUP_PATH" == '' ]
         then
             echo 'parameter $BACKUP_PATH must be defined for backup and restore'
+        elif [ ! -d "$BACKUP_PATH" ]
+        then
+            echo "backup folder $BACKUP_PATH is not existing, break!"
         else
             SOURCE_FOLDER=z-way-server
             VERS_CURR=`cd /opt/z-way-server; LD_LIBRARY_PATH=./libs ./z-way-server -h 2>/dev/null | head -n 1 | cut -d' ' -f3`
@@ -571,12 +565,6 @@ case $PARAM1 in
             echo "It's not the same as restoring *.zab and *.zbk backups!"
             echo ''
     
-            if [ ! -d "$BACKUP_PATH" ]
-            then
-                echo "backup folder $BACKUP_PATH is not existing, break!"
-                exit 1
-            fi
-    
             #OPT=`cd $BACKUP_PATH; ls -x1 --sort=time *.tar.gz`
             OPT=`get_backups`
             BACKUP_FILE=`${ZWAY_DIR}bashmenu.bash $BACKUP_PATH $OPT`
@@ -584,15 +572,40 @@ case $PARAM1 in
             [ "$BACKUP_FILE" == "break" ] && exit 0
             BACKUP_FILE="${BACKUP_FILE:17}"
     
+            if [ $(service_running $SERVICE) -eq $YES ]
+            then
+                echo stop service $SERVICE first, break!
+                exit 1
+            fi
+
             read -p  "restore $SOURCE_FOLDER from ${BACKUP_FILE}? [Y,n] " CONT
-            [ "$CONT" != "" ] && [ "$CONT" != "Y" ] && exit 200
+            case ${CONT:-Y} in
+                ([Yy]) ;;
+                ([Nn]) exit 200;;
+                (*)    exit 200;;
+            esac
+
+            if [ -e $MXWATCHDOG ]
+            then
+                rm -f $WDOG_ACTIVE
+            fi
+            extract_backup=${ZWAY_DIR}extract_backup.bash
+            if [ ! -e "$extract_backup" ]
+            then
+                echo "$extract_backup" not found, break.
+                exit 1
+            fi
+            cp "$extract_backup" "$BACKUP_PATH"
+
             pushd /opt/ >/dev/null 2>&1
+                RESTORE_PATH=`dirname $SOURCE_FOLDER`
                 if [ -h "$SOURCE_FOLDER" ]
                 then
                     LINK_PATH=`readlink $SOURCE_FOLDER`
-                    cd $LINK_PATH/..
+                    RESTORE_PATH=`dirname $LINK_PATH`
                 fi
-                sudo tar -cvzf $BACKUP_PATH/$BACKUP_FILE $SOURCE_FOLDER
+                #sudo tar -xvf $BACKUP_PATH/$BACKUP_FILE -C ${LINK_PATH} --overwrite
+                $BACKUP_PATH/extract_backup.bash "$BACKUP_PATH/$BACKUP_FILE" "$RESTORE_PATH"
                 ret=$?
                 if [ $ret -ne 0 ]
                 then
@@ -610,6 +623,12 @@ case $PARAM1 in
         if [ "$ARCHITECTURE" != 'armhf' ] && [ "$ARCHITECTURE" != 'amd64' ]
         then
             echo "this function is not supported for $ARCHITECTURE, break!"
+            exit 1
+        fi
+
+        if [ $(service_running $SERVICE) -eq $YES ]
+        then
+            echo stop service $SERVICE first, break!
             exit 1
         fi
 
@@ -632,9 +651,19 @@ case $PARAM1 in
         echo ''
         PKG=z-way-${VERS_NEW}_${ARCHITECTURE}.deb
         echo filename=$PKG
+       
         read -p "up-downgrade $PRODUCT from version $VERS_CURR to version v${VERS_NEW}? [Y,n] " CONT 
-        [ "$CONT" != "" ] && [ "$CONT" != "Y" ] && exit 200
-        
+        case ${CONT:-Y} in
+            ([Yy]) ;;
+            ([Nn]) exit 200;;
+            (*)    exit 200;;
+        esac
+
+        if [ -e $MXWATCHDOG ]
+        then
+            rm -f $WDOG_ACTIVE
+        fi
+
         echo downloading $PKG to /tmp/...
         wget -O /tmp/$PKG ${URL_PACKAGE}/$PKG
         if [ $? -ne 0 ]
@@ -645,7 +674,12 @@ case $PARAM1 in
         
         echo ''
         read -p "install ${PKG}? [Y,n] " CONT 
-        [ "$CONT" != "" ] && [ "$CONT" != "Y" ] && exit 200
+        case ${CONT:-Y} in
+            ([Yy]) ;;
+            ([Nn]) exit 200;;
+            (*)    exit 200;;
+        esac
+
         echo installing ${PKG}...
         sudo dpkg -i /tmp/$PKG
         ret=$?
@@ -657,12 +691,6 @@ case $PARAM1 in
         echo ''
         VERS_NEW=`cd /opt/z-way-server; LD_LIBRARY_PATH=./libs ./z-way-server -h 2>/dev/null | head -n 1 | cut -d' ' -f3`
         echo version old: $VERS_CURR. version new: $VERS_NEW
-
-        if [ $(service_running $SERVICE) -eq $YES ]
-        then
-            echo ''
-            echo "don't forget to restart $SERVICE!!!"
-        fi
         ;;
     changelog) 
         ${ZWAY_DIR}zway_versions.bash
@@ -670,9 +698,12 @@ case $PARAM1 in
     devices) 
         ${ZWAY_DIR}zwave_devices.bash --print
         ;;
+    reboot) 
+        sudo shutdown -r now
+        ;;
     *)          
-        OPT_START='status details system start manually logrotate'
-        OPT_STOP="status details cpu top jobqueue system stop restart logrotate"
+        OPT_START='status details system start run_in_foreground logrotate'
+        OPT_STOP="status details cpu top jobqueue system stop logrotate"
         if [ $(service_running $SERVICE) == $NO ]
         then
             OPT="$OPT_START"
@@ -683,14 +714,14 @@ case $PARAM1 in
         then
             [ $LOCKED == "no" ]  && lockaction=lock
             [ $LOCKED == "yes" ] && lockaction=unlock
-            option=`${ZWAY_DIR}bashmenu.bash $_self $OPT "backup z-way-server" "restore z-way-server" "changelog versions" "up-downgrade z-way" "devices (zwave)" "${lockaction} Mx modules" `
+            option=`${ZWAY_DIR}bashmenu.bash $_self $OPT "backup z-way-server" "restore z-way-server" "changelog versions" "up-downgrade z-way" "devices (zwave)" "${lockaction} Mx modules" "reboot"`
         else
-            option=`${ZWAY_DIR}bashmenu.bash $_self $OPT "backup z-way-server" "restore z-way-server" "changelog versions" "up-downgrade z-way" "devices (zwave)"`
+            option=`${ZWAY_DIR}bashmenu.bash $_self $OPT "backup z-way-server" "restore z-way-server" "changelog versions" "up-downgrade z-way" "devices (zwave)" "reboot"`
         fi
 
         case "$option" in
             "")
-                echo -n 'usage: '$_self' status|details|top|jobcount|jobqueue|cpu|start|stop|restart|manually|logrotate|backup|restore|changelog|up-downgrade|devices'
+                echo -n 'usage: '$_self' status|details|top|jobcount|jobqueue|cpu|start|stop|run_in_foreground|logrotate|backup|restore|changelog|up-downgrade|devices|reboot'
                 if [ "$LOCKED" != "" ]
                 then
                     echo '|lock|unlock'

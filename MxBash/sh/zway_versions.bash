@@ -12,9 +12,10 @@
 #h Resources:    
 #h Platforms:    Linux
 #h Authors:      peb piet66
-#h Version:      V1.0.0 2023-11-29/peb
+#h Version:      V1.0.0 2024-02-25/peb
 #v History:      V1.0.0 2022-08-21/peb first version
 #h Copyright:    (C) piet66 2023
+#h License:      http://opensource.org/licenses/MIT
 #h
 #h-------------------------------------------------------------------------------
 
@@ -22,7 +23,7 @@
 #-----------
 MODULE='zway_versions.bash'
 VERSION='V1.0.0'
-WRITTEN='2023-11-29/peb'
+WRITTEN='2024-02-25/peb'
 
 URL_CHANGELOG="https://storage.z-wave.me/z-way-server/ChangeLog"
 URL_CHANGELOG_AUTOM="https://raw.githubusercontent.com/Z-Wave-Me/home-automation/master/CHANGELOG.md"

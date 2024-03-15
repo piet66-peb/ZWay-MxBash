@@ -26,12 +26,19 @@ Z-Way.
   + USERMODULES="/opt/z-way-server/automation/userModules"
   + PATH="$USERMODULES/MxBash/sh/:$PATH"
 
-## Start/Stop Management
+## Start the Menu
 
-This scripts can use the new start/ stop mechanism **systemd**, availabe in
+zway.bash
+
+## Z-Way Start/Stop Management
+
+This script can use the new start/ stop mechanism **Systemd**, availabe in
 many current Linux distributions. To take 
 advantage of the benefits, follow the installation instructions in the 
 **z-way-server.service** file.
+
+Please note: Don't delete the **SysVinit** configuration file **/etc/init.d/z-way-server**.
+It is still used by Z-Way, for example during an upgrade.
 
 ## License: MIT
 
