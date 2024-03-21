@@ -12,7 +12,7 @@
 #h Resources:    whiptail
 #h Platforms:    Linux
 #h Authors:      peb piet66
-#h Version:      V1.0 2023-10-19/peb
+#h Version:      V1.0 2024-03-20/peb
 #v History:      V1.0 2023-06-21/peb first version
 #h Copyright:    (C) piet66 2023
 #h
@@ -22,7 +22,7 @@
 #-----------
 MODULE='bashmenu.bash'
 VERSION='V1.0'
-WRITTEN='2023-10-19/peb'
+WRITTEN='2024-03-20/peb'
 
 if [ $# -lt 2 ]
 then

@@ -18,21 +18,44 @@ DAEMON_PATH=/opt/z-way-server
 PIDFILE=/var/run/$NAME.pid
 RESETFILE=$DAEMON_PATH/reset-z-way.sh
 
+ZWAY_BASH=zway.bash
+USERMODULES=$DAEMON_PATH/automation/userModules
+ZWAY_BASH_PATH=$USERMODULES/MxBash/sh/$ZWAY_BASH
 
 case "$1" in
   start)
-	if [ -e "$RESETFILE" ]; then
+	if [ -x "$RESETFILE" ]; then
 		"$RESETFILE" check_reset
 	fi
-	echo -n "Starting z-way-server: "
-	start-stop-daemon --start  --pidfile $PIDFILE --make-pidfile  --background --no-close --chdir $DAEMON_PATH --exec $NAME > /dev/null 2>&1
-	echo "done."
+    if [ ! `pidof $NAME` ] 
+    then
+        PARENT=`cat /proc/$PPID/comm`
+	    if [ -x "$ZWAY_BASH_PATH" ] && [ "$PARENT" != "$ZWAY_BASH" ]
+        then
+            echo Redirecting to "$ZWAY_BASH"
+            "$ZWAY_BASH_PATH" start
+        else
+	        echo -n "Starting z-way-server: "
+	        start-stop-daemon --start --pidfile $PIDFILE --make-pidfile --background --no-close --chdir $DAEMON_PATH --exec $NAME > /dev/null 2>&1
+	        echo "done."
+        fi
+    fi
 	;;
   stop)
-	echo -n "Stopping z-way-server: "
-	start-stop-daemon --stop --quiet --pidfile $PIDFILE
-	rm -f $PIDFILE
-	echo "done."
+    if [ `pidof $NAME` ] 
+    then
+        PARENT=`cat /proc/$PPID/comm`
+	    if [ -x "$ZWAY_BASH_PATH" ] && [ "$PARENT" != "$ZWAY_BASH" ]
+        then
+            echo Redirecting to "$ZWAY_BASH"
+            "$ZWAY_BASH_PATH" stop
+        else
+    	    echo -n "Stopping z-way-server: "
+	        start-stop-daemon --stop --quiet --pidfile $PIDFILE
+	        rm -f $PIDFILE
+	        echo "done."
+        fi
+    fi
 	;;
   restart)
 	echo "Restarting z-way-server: "

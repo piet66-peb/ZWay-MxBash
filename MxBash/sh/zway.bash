@@ -42,7 +42,7 @@
 #h Resources:    bashmenu.bash, whiptail
 #h Platforms:    Linux
 #h Authors:      peb piet66
-#h Version:      V3.0.0 2024-03-15/peb
+#h Version:      V3.1.0 2024-03-21/peb
 #v History:      V1.0.0 2017-02-03/peb first version
 #h Copyright:    (C) piet66 2017
 #h License:      http://opensource.org/licenses/MIT
@@ -50,8 +50,8 @@
 #h-------------------------------------------------------------------------------
 
 MODULE='zway.bash'
-VERSION='V3.0.0'
-WRITTEN='2024-03-15/peb'
+VERSION='V3.1.0'
+WRITTEN='2024-03-21/peb'
 
 #------------
 #b Parameters
@@ -175,10 +175,10 @@ function manage_service
                 echo -e "\n"sudo systemctl enable $SERVICE.service
                 sudo systemctl enable $SERVICE.service >/dev/null 2>&1
                 echo -e "\n"sudo systemctl start $SERVICE.service
-                sudo systemctl start $SERVICE.service >/dev/null 2>&1
+                sudo systemctl start $SERVICE.service
             else
                 echo -e "\n"sudo /etc/init.d/$SERVICE start
-                sudo /etc/init.d/$SERVICE start  >/dev/null 2>&1
+                sudo /etc/init.d/$SERVICE start
             fi
 
             # for automatic restart if crashed:
@@ -194,12 +194,12 @@ function manage_service
             if [ $(service_manager $SERVICE) != $SYSVINIT ]
             then
                 echo -e "\n"sudo systemctl stop $SERVICE.service
-                sudo systemctl stop $SERVICE.service >/dev/null 2>&1
+                sudo systemctl stop $SERVICE.service
                 echo -e "\n"sudo systemctl disable $SERVICE.service
                 sudo systemctl disable $SERVICE.service >/dev/null 2>&1
             else
                 echo -e "\n"sudo /etc/init.d/$SERVICE stop
-                sudo /etc/init.d/$SERVICE stop  >/dev/null 2>&1
+                sudo /etc/init.d/$SERVICE stop
             fi
         fi
             
@@ -231,6 +231,15 @@ LOCKED=`get_LOCKED`
 
 PARAM1=''$1
 case $PARAM1 in
+    version) 
+        echo ''
+        echo $MODULE $VERSION $WRITTEN
+        SCRIPT=$(realpath "$0")
+        echo $SCRIPT
+        SCRIPT_S=$(realpath -s "$0")
+        [ "$SCRIPT" != "§SCGRIPR_S" ] && echo $SCRIPT_S
+        echo ''
+        ;;
     logrotate) 
         echo ''
         echo force logrotate $SERVICE.log
@@ -549,6 +558,16 @@ case $PARAM1 in
                 fi
             popd >/dev/null 2>&1
         fi
+
+        echo ''
+        if [ $(service_running $SERVICE) -eq $YES ]
+        then
+            SM="$(service_manager $SERVICE)"
+            echo $SERVICE was restarted with startmanager $SM
+            echo ' !!!! (automatic restart during backup?)'
+        else
+            echo start $SERVICE again!
+        fi
         ;;
     restore) 
         if [ "$BACKUP_PATH" == '' ]
@@ -617,6 +636,16 @@ case $PARAM1 in
                 VERS_NEW=`cd /opt/z-way-server; LD_LIBRARY_PATH=./libs ./z-way-server -h 2>/dev/null | head -n 1 | cut -d' ' -f3`
                 echo version old: $VERS_CURR. version new: $VERS_NEW
             popd >/dev/null 2>&1
+        fi
+
+        echo ''
+        if [ $(service_running $SERVICE) -eq $YES ]
+        then
+            SM="$(service_manager $SERVICE)"
+            echo $SERVICE was restarted with startmanager $SM
+            echo ' !!!! (automatic restart during restore?)'
+        else
+            echo start $SERVICE again!
         fi
         ;;
     up-downgrade) 
@@ -691,6 +720,19 @@ case $PARAM1 in
         echo ''
         VERS_NEW=`cd /opt/z-way-server; LD_LIBRARY_PATH=./libs ./z-way-server -h 2>/dev/null | head -n 1 | cut -d' ' -f3`
         echo version old: $VERS_CURR. version new: $VERS_NEW
+
+        echo ''
+        if [ $(service_running $SERVICE) -eq $YES ]
+        then
+            SM="$(service_manager $SERVICE)"
+            echo $SERVICE was restarted with startmanager $SM
+            if [ "$SM" != "$SYSVINIT" ]
+            then
+                echo ' !!!! (automatic restart during up-downgrade?)'
+            fi
+        else
+            echo start $SERVICE again!
+        fi
         ;;
     changelog) 
         ${ZWAY_DIR}zway_versions.bash
@@ -734,6 +776,8 @@ case $PARAM1 in
             "break")
                 ;;
             *)
+                echo ''
+                eval "$COMMAND_PRE"
                 echo ''
                 $0 $option
                 ret=$?

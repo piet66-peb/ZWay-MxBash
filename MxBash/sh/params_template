@@ -23,3 +23,7 @@
 # for lock/unlock Mx-modules at start (module MxBaseModule is necessary):
 #MXLOCK=yes
 
+# execute command before running each function:
+#COMMAND_PRE='echo ==================================================================='
+#COMMAND_PRE='clear'
+
