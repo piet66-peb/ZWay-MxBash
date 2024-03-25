@@ -30,18 +30,12 @@ Z-Way.
 
 zway.bash
 
-## Z-Way Start/Stop Management
+## Migrating to Systemd
 
 This script can use the new start/ stop mechanism **Systemd**, availabe in
 many current Linux distributions. To take 
 advantage of the benefits, follow the installation instructions 
 in [Using Z-Way with Systemd](./html/systemd.md).
-
-Please note: Don't delete the **SysVinit** configuration file **/etc/init.d/z-way-server**.
-It is still used by Z-Way, for example during an upgrade.
-
-
-
 
 ## License: MIT
 

@@ -42,7 +42,7 @@
 #h Resources:    bashmenu.bash, whiptail
 #h Platforms:    Linux
 #h Authors:      peb piet66
-#h Version:      V3.1.0 2024-03-21/peb
+#h Version:      V3.1.0 2024-03-25/peb
 #v History:      V1.0.0 2017-02-03/peb first version
 #h Copyright:    (C) piet66 2017
 #h License:      http://opensource.org/licenses/MIT
@@ -51,7 +51,7 @@
 
 MODULE='zway.bash'
 VERSION='V3.1.0'
-WRITTEN='2024-03-21/peb'
+WRITTEN='2024-03-25/peb'
 
 #------------
 #b Parameters
@@ -110,6 +110,8 @@ SYSTEMD='Systemd-systemctl'
 SYSTEMD_GEN='Systemd-generated(init.d)'
 SYSVINIT='SysVinit-init.d'
 SERVICE_MANAGER=    # $SYSTEMD|$SYSVINIT|$SYSTEMD_GEN
+
+SYSVINIT_ORIG="${ZWAY_DIR}install_systemd/config_z-way-server.orig"
 
 #-----------
 #b Functions
@@ -177,8 +179,14 @@ function manage_service
                 echo -e "\n"sudo systemctl start $SERVICE.service
                 sudo systemctl start $SERVICE.service
             else
-                echo -e "\n"sudo /etc/init.d/$SERVICE start
-                sudo /etc/init.d/$SERVICE start
+                if [ -x "$SYSVINIT_ORIG" ]
+                then
+                    echo -e "\n"sudo "$SYSVINIT_ORIG" $2
+                    sudo "$SYSVINIT_ORIG" $2
+                else
+                    echo -e "\n"sudo /etc/init.d/$SERVICE $2
+                    sudo /etc/init.d/$SERVICE $2
+                fi
             fi
 
             # for automatic restart if crashed:
@@ -198,8 +206,14 @@ function manage_service
                 echo -e "\n"sudo systemctl disable $SERVICE.service
                 sudo systemctl disable $SERVICE.service >/dev/null 2>&1
             else
-                echo -e "\n"sudo /etc/init.d/$SERVICE stop
-                sudo /etc/init.d/$SERVICE stop
+                if [ -x "$SYSVINIT_ORIG" ]
+                then
+                    echo -e "\n"sudo "$SYSVINIT_ORIG" $2
+                    sudo "$SYSVINIT_ORIG" $2
+                else
+                    echo -e "\n"sudo /etc/init.d/$SERVICE $2
+                    sudo /etc/init.d/$SERVICE $2
+                fi
             fi
         fi
             
@@ -323,9 +337,12 @@ case $PARAM1 in
         ;;
     details) 
         sudo systemctl --no-pager status $SERVICE >/dev/null 2>&1
-        # 4 = not found
-        # 0 = found
-        if [ $? -eq 0 ]
+        # 0	"program is running or service is OK"	unit is active
+        # 1	"program is dead and /var/run pid file exists"	unit not failed (used by is-failed)
+        # 2	"program is dead and /var/lock lock file exists"	unused
+        # 3	"program is not running"	unit is not active
+        # 4	"program or service status is unknown"	no such unit
+        if [ $? -ne 4 ]
         then
             systemctl --no-pager status $SERVICE --no-pager -l
 
