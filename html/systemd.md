@@ -14,24 +14,25 @@ need to be taken into account.
 
 A working configuration file **z-way-server.service** for Z-Way:
 
-<span style="font-size:14px">
-<pre>
+```systemd
+# z-way-server.service: systemd service file
 
-\# z-way-server.service: systemd service file<br>
 [Unit]
-Description=Z-Way Server <br>
+Description=Z-Way Server
+
 [Service]
 User=root
-Group=root<br>
+Group=root
+
 Environment=PATH=/bin:/usr/bin:/sbin:/usr/sbin
 WorkingDirectory=/opt/z-way-server
-ExecStart=/opt/z-way-server/z-way-server<br>
-\#Restart=always
-\#RestartSec=2min<br>
+ExecStart=/opt/z-way-server/z-way-server
+#Restart=always
+#RestartSec=2min
+
 [Install]
 WantedBy=multi-user.target
-</pre>
-</span>
+```
 
 This configuration file is stored in folder **./install_systemd** 
 and can be installed with the script **./install_systemd.bash**.<br>
@@ -43,13 +44,13 @@ and to
 ## Installation of the Systemd Service File
 
 1. stop the z-way-server:<br>
-   **/etc/init.d/z-way-server stop**<br>
+   `/etc/init.d/z-way-server stop`<br>
    don't delete the SysVinit script /etc/init.d/z-way-server !
 2. install the Systemd service file:<br>
-   **./install_systemd.bash**
+   `./install_systemd.bash`
 3. start the z-way-server:<br>
-   **sudo systemctl enable z-way-server**<br>
-   **sudo systemctl start z-way-server**
+   `sudo systemctl enable z-way-server`<br>
+   `sudo systemctl start z-way-server`
 
 ## The Behavior of Z-Way
 
@@ -57,11 +58,11 @@ Z-Way still uses the SysVinit start-stop mechanism in init.d.
 Especially the behavior on updates has to be considered:
 
 1. On update first it stops a running z-way-server process with<br>
-    <b>sudo /etc/init.d/z-way-server stop</b>
+    `sudo /etc/init.d/z-way-server stop`
 2. During the update it creates a new configuration file, but only if
    there isn't one.
 3. After update at last it starts the z-way-server with<br>
-    <b>sudo /etc/init.d/z-way-server start</b><br>
+    `sudo /etc/init.d/z-way-server start`<br>
     Also it creates new runlevel-links for the configuration file. 
 
 If you would migrate to Systemd and remove the SysVinit script,
@@ -93,46 +94,43 @@ only once at system boot, although all runlevel links for init.d are existing.
 To solve all the problems with concurrend execution described above, at last I came to the following
 modification of my SysVinit script:
 
-<span style="font-size:14px">
-<pre>
-<b>SYSTEMD_CONFIG=/etc/systemd/system/$NAME.service
-ID="init.d-$NAME"</b>
+```sh
+SYSTEMD_CONFIG=/etc/systemd/system/$NAME.service
 
 case "$1" in
   start)
     if [ -x "$RESETFILE" ]; then
         "$RESETFILE" check_reset
     fi
-<b>    if [ -e "$SYSTEMD_CONFIG" ] 
+    if [ -e "$SYSTEMD_CONFIG" ] 
     then
-        logger -is "$ID sudo systemctl start $NAME.service"
+        echo "sudo systemctl start $NAME.service"
         sudo systemctl start $NAME.service
-        logger -is "$ID sudo systemctl enable $NAME.service"
+        echo "sudo systemctl enable $NAME.service"
         sudo systemctl enable $NAME.service >/dev/null 2>&1
-    else</b>
+    else
         echo -n "Starting z-way-server: "
         start-stop-daemon --start --pidfile $PIDFILE --make-pidfile --background --no-close --chdir $DAEMON_PATH --exec $NAME > /dev/null 2>&1
         echo "done."
-<b>    fi</b>
+    fi
     ;;
   stop)
-<b>    if [ -e "$SYSTEMD_CONFIG" ] 
+    if [ -e "$SYSTEMD_CONFIG" ] 
     then
-        logger -is "$ID sudo systemctl disable $NAME.service"
+        echo "sudo systemctl disable $NAME.service"
         sudo systemctl disable $NAME.service >/dev/null 2>&1
-        logger -is "$ID sudo systemctl stop $NAME.service"
+        echo "sudo systemctl stop $NAME.service"
         sudo systemctl stop $NAME.service
     fi
-    if [ \`pidof $NAME\` ] 
-    then</b>
+    if [ `pidof $NAME` ] 
+    then
         echo -n "Stopping z-way-server: "
         start-stop-daemon --stop --quiet --pidfile $PIDFILE
         rm -f $PIDFILE
         echo "done."
-<b>    fi</b>
+    fi
     ;;
-</pre>
-</span>
+```
 
 If the Systemd service file doesn't exist, it works as normal.<br>
 If the Systemd service file exists, start and stop are redirected to Systemd 
