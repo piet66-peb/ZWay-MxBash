@@ -22,7 +22,7 @@ Group=root
 Environment=PATH=/bin:/usr/bin:/sbin:/usr/sbin
 WorkingDirectory=/opt/z-way-server
 ExecStart=/opt/z-way-server/z-way-server
-#Restart=always
+#Restart=on-failure
 #RestartSec=2min
 
 [Install]

@@ -12,7 +12,7 @@
 #h Resources:    
 #h Platforms:    Linux
 #h Authors:      peb piet66
-#h Version:      V1.0.0 2024-03-25/peb
+#h Version:      V1.0.0 2024-03-26/peb
 #v History:      V1.0.0 2024-02-24/peb first version
 #h Copyright:    (C) piet66 2024
 #h
@@ -20,9 +20,9 @@
 
 #b Constants
 #-----------
-MODULE='install_systemd.d.bash'
+MODULE='install_systemd.bash'
 VERSION='V1.0.0'
-WRITTEN='2024-03-25/peb'
+WRITTEN='2024-03-26/peb'
 
 #b Variables
 #-----------
