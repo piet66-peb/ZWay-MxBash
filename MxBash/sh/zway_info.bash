@@ -12,7 +12,7 @@
 #h Resources:    
 #h Platforms:    Linux
 #h Authors:      peb piet66
-#h Version:      V1.2.1 2024-02-25/peb
+#h Version:      V1.2.1 2024-03-26/peb
 #v History:      V1.0.0 2019-10-17/peb first version
 #h Copyright:    (C) piet66 2022
 #h License:      http://opensource.org/licenses/MIT
@@ -24,7 +24,7 @@
 #-----------
 MODULE='zway_info.bash'
 VERSION='V1.2.1'
-WRITTEN='2024-02-25/peb'
+WRITTEN='2024-03-26/peb'
 
 #-----------
 #b Variables
@@ -45,9 +45,12 @@ WRITTEN='2024-02-25/peb'
     #b Raspberry Pi data
     #-------------------
     echo ''
-    cat /sys/firmware/devicetree/base/model
-    echo -n ' Serial#:' ; cat /proc/cpuinfo | grep Serial | cut -d' ' -f2
-    echo -n 'Memory:' ; cat /proc/meminfo | grep MemTotal | cut -c16-
+    if [ -e /sys/firmware/devicetree/base/model ]
+    then
+        cat /sys/firmware/devicetree/base/model
+        echo -n ',  Serial#:' ; cat /proc/cpuinfo | grep Serial | cut -d' ' -f2
+        echo -n 'Memory:' ; cat /proc/meminfo | grep MemTotal | cut -c16-
+    fi
     echo Software architecture: `dpkg --print-architecture`=`getconf LONG_BIT` bit
     cat /etc/os-release | grep PRETTY_NAME | cut -d'"' -f2
     uname -a
@@ -75,9 +78,12 @@ WRITTEN='2024-02-25/peb'
         done
     fi
 
-    echo ''
-    echo tvservice -s
-    tvservice -s
+    if [ -x "$(command -v tvservice)" ]
+    then
+        echo ''
+        echo tvservice -s
+        tvservice -s
+    fi
 
     if [ -d /opt/z-way-server ]
     then
