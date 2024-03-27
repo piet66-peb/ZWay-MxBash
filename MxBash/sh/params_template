@@ -3,7 +3,7 @@
 #h
 #h Name:         params
 #h Type:         Linux shell script
-#h Purpose:      parameters for zway.bash
+#h Purpose:      parameters for MxBash
 #h Project:      z-Way Homeserver
 #h Installation: rename the file params_template to params,
 #h               and enter your parameters

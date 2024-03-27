@@ -1,14 +1,10 @@
-/*** MxBash V1.0.1 2023-08-01 Z-Way HA module *********************************/
+/*** MxBash V1.0.1 2024-03-27 Z-Way HA module *********************************/
 
-/*jshint esversion: 5 */
-/* v8 implementation ECMA-262: no const, no let */
-/*jshint strict: false */
-/*globals inherits, _module: true, AutomationModule */
 //h-------------------------------------------------------------------------------
 //h
 //h Name:         index.js
 //h Type:         Javascript code for Z-Way module MxBash
-//h Purpose:      creates a softlink MxBash in smarthome/user/
+//h Purpose:      
 //h Project:      Z-Way HA
 //h Usage:        
 //h Remark:       
@@ -18,12 +14,15 @@
 //h Resources:    AutomationModule
 //h Issues:       
 //h Authors:      peb Peter M. Ebert
-//h Version:      V1.0.1 2023-08-01/peb
+//h Version:      V1.0.1 2024-03-27/peb
 //v History:      V1.0.0 2023-08-01/peb first version
 //h Copyright:    (C) Peter M. Ebert 2019
 //h License:      http://opensource.org/licenses/MIT
 //h 
 //h-------------------------------------------------------------------------------
+/*jshint esversion: 5 */
+/*jshint strict: false */
+/*globals inherits, _module: true, AutomationModule */
 
 //h-------------------------------------------------------------------------------
 //h
@@ -37,7 +36,7 @@ function MxBash(id, controller) {
 
     this.MODULE='index.js';
     this.VERSION='V1.0.1';
-    this.WRITTEN='2023-08-01/peb';
+    this.WRITTEN='2024-03-27/peb';
 }
 inherits(MxBash, AutomationModule);
 _module = MxBash;

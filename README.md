@@ -35,7 +35,7 @@ zway.bash
 This script can use the new start/ stop mechanism **Systemd**, availabe in
 many current Linux distributions. To take 
 advantage of the benefits, follow the installation instructions 
-in [Using Z-Way with Systemd](./html/systemd.md).
+in [Using Z-Way with Systemd](https://github.com/piet66-peb/ZWay-MxSystemd).
 
 ## License: MIT
 
