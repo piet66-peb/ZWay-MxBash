@@ -42,7 +42,7 @@
 #h Resources:    bashmenu.bash, whiptail
 #h Platforms:    Linux
 #h Authors:      peb piet66
-#h Version:      V3.1.0 2024-03-26/peb
+#h Version:      V3.1.0 2024-03-27/peb
 #v History:      V1.0.0 2017-02-03/peb first version
 #h Copyright:    (C) piet66 2017
 #h License:      http://opensource.org/licenses/MIT
@@ -51,7 +51,7 @@
 
 MODULE='zway.bash'
 VERSION='V3.1.0'
-WRITTEN='2024-03-26/peb'
+WRITTEN='2024-03-27/peb'
 
 #------------
 #b Parameters
@@ -174,8 +174,8 @@ function manage_service
         then
             if [ $(service_manager $SERVICE) != $SYSVINIT ]
             then
-                echo -e "\n"sudo systemctl reset-failed $SERVICE.service
-                sudo systemctl reset-failed $SERVICE.service
+                #echo -e "\n"sudo systemctl reset-failed $SERVICE.service
+                #sudo systemctl reset-failed $SERVICE.service
                 echo -e "\n"sudo systemctl enable $SERVICE.service
                 sudo systemctl enable $SERVICE.service >/dev/null 2>&1
                 echo -e "\n"sudo systemctl start $SERVICE.service
