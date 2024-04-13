@@ -5,7 +5,7 @@
 #h Type:         Linux shell script
 #h Purpose:      extracts a backup file
 #h Project:      
-#h Usage:        backup_contents.bash <archive file> [<target path>]
+#h Usage:        extract_backup.bash <archive file> [<target path>]
 #h               default target path: ..
 #h Result:       
 #h Examples:     
@@ -13,7 +13,7 @@
 #h Resources:    
 #h Platforms:    Linux
 #h Authors:      peb piet66
-#h Version:      V1.0.0 2024-02-26/peb
+#h Version:      V1.0.0 2024-04-11/peb
 #v History:      V1.0.0 2024-02-25/peb first version
 #h Copyright:    (C) piet66 2024
 #h License:      http://opensource.org/licenses/MIT
@@ -22,9 +22,9 @@
 
 #b Constants
 #-----------
-MODULE='backup_contents.bash'
+MODULE='extract_backup.bash'
 VERSION='V1.0.0'
-WRITTEN='2024-02-26/peb'
+WRITTEN='2024-04-11/peb'
 
 #b Commands
 #----------
@@ -33,7 +33,7 @@ archive="$1"
 
 if [ "$archive" == "" ]
 then
-    echo 'usage:  backup_contents.bash <archive file> [<target path>]' 
+    echo 'usage:  extract_backup.bash <archive file> [<target path>]' 
     exit
 fi
 

@@ -42,7 +42,7 @@
 #h Resources:    bashmenu.bash, whiptail
 #h Platforms:    Linux
 #h Authors:      peb piet66
-#h Version:      V3.1.0 2024-04-08/peb
+#h Version:      V3.1.0 2024-04-11/peb
 #v History:      V1.0.0 2017-02-03/peb first version
 #h Copyright:    (C) piet66 2017
 #h License:      http://opensource.org/licenses/MIT
@@ -51,7 +51,7 @@
 
 MODULE='zway.bash'
 VERSION='V3.1.0'
-WRITTEN='2024-04-08/peb'
+WRITTEN='2024-04-11/peb'
 
 #------------
 #b Parameters
@@ -654,6 +654,7 @@ case $PARAM1 in
                     RESTORE_PATH=`dirname $LINK_PATH`
                 fi
                 #sudo tar -xvf $BACKUP_PATH/$BACKUP_FILE -C ${LINK_PATH} --overwrite
+                echo $BACKUP_PATH/extract_backup.bash "$BACKUP_PATH/$BACKUP_FILE" "$RESTORE_PATH"
                 $BACKUP_PATH/extract_backup.bash "$BACKUP_PATH/$BACKUP_FILE" "$RESTORE_PATH"
                 ret=$?
                 if [ $ret -ne 0 ]
