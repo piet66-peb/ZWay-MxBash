@@ -42,7 +42,7 @@
 #h Resources:    bashmenu.bash, whiptail
 #h Platforms:    Linux
 #h Authors:      peb piet66
-#h Version:      V3.1.0 2024-04-11/peb
+#h Version:      V3.1.0 2024-06-22/peb
 #v History:      V1.0.0 2017-02-03/peb first version
 #h Copyright:    (C) piet66 2017
 #h License:      http://opensource.org/licenses/MIT
@@ -51,7 +51,7 @@
 
 MODULE='zway.bash'
 VERSION='V3.1.0'
-WRITTEN='2024-04-11/peb'
+WRITTEN='2024-06-22/peb'
 
 #------------
 #b Parameters
@@ -76,7 +76,7 @@ fi
 YES=0
 NO=1
 
-URL_CHANGELOG="https://storage.z-wave.me/z-way-server/ChangeLog"
+URL_CHANGELOG="https://storage.z-wave.me/z-way-server/ChangeLog/"
 URL_CHANGELOG_AUTOM="https://raw.githubusercontent.com/Z-Wave-Me/home-automation/master/CHANGELOG.md"
 URL_PACKAGE="https://storage.z-wave.me/z-way-server/"
 
@@ -172,6 +172,7 @@ function manage_service
     then
         if [ $(service_running $SERVICE) -eq $NO ]
         then
+            logger -is -t $MODULE "starting  $SERVICE..."
             if [ $(service_manager $SERVICE) != $SYSVINIT ]
             then
                 #echo -e "\n"sudo systemctl reset-failed $SERVICE.service
@@ -201,6 +202,7 @@ function manage_service
     then
         if [ $(service_running $SERVICE) -eq $YES ]
         then
+            logger -is -t $MODULE "stopping  $SERVICE..."
             if [ $(service_manager $SERVICE) != $SYSVINIT ]
             then
                 echo -e "\n"sudo systemctl stop $SERVICE.service
@@ -329,12 +331,12 @@ case $PARAM1 in
             do
                 case "$tag" in
                     VmSize:*) 
-                        size=`numfmt --to iec --format "%8.4f" $value'000' | sed 's/M/ MB/'`
-                        echo -e "size complete: \t$value $scale = $size"
+                        sizeMi=`numfmt --from si --to iec-i --format "%8.4f" $value'K' | sed 's/Mi/ MiB/'`
+                        echo -e "size complete: \t$value $scale = $sizeMi"
                         ;;
                     VmRSS:*) 
-                        size=`numfmt --to iec --format "%8.4f" $value'000' | sed 's/M/ MB/'`
-                        echo -e "size in RAM:   \t$value $scale = $size"
+                        sizeMi=`numfmt --from si --to iec-i --format "%8.4f" $value'K' | sed 's/Mi/ MiB/'`
+                        echo -e "size in RAM:   \t$value $scale = $sizeMi"
                         break
                         ;;
                 esac
@@ -460,6 +462,7 @@ case $PARAM1 in
             function gr {
               grep -m1 '"'$1'"' $DATA | sed 's/^.*value="//' | sed 's/".*$//'
             }
+            manufacturerId=`gr manufacturerId`
             vendor=`gr vendor`
             ZWaveChip=`gr ZWaveChip`
             SDK=`gr SDK`
@@ -475,7 +478,7 @@ case $PARAM1 in
                    bootloader=`gr crc`
                fi
             fi
-            echo $vendor $ZWaveChip $SDK $APIVersion/$bootloader $PRODTYPE/$PRODID
+            echo $vendor'('$manufacturerId')' $ZWaveChip $SDK $APIVersion/$bootloader $PRODTYPE/$PRODID
         fi
         cd /opt/z-way-server; LD_LIBRARY_PATH=./libs ./z-way-server -h 2>/dev/null | head -n 1
         ;;
@@ -768,6 +771,9 @@ case $PARAM1 in
     changelog) 
         ${ZWAY_DIR}zway_versions.bash
         ;;
+    firmware) 
+        ${ZWAY_DIR}razberry_fw.bash
+        ;;
     nodes) 
         ${ZWAY_DIR}zwave_devices.bash --print
         ;;
@@ -787,14 +793,14 @@ case $PARAM1 in
         then
             [ $LOCKED == "no" ]  && lockaction=lock
             [ $LOCKED == "yes" ] && lockaction=unlock
-            option=`${ZWAY_DIR}bashmenu.bash $_self $OPT "backup z-way-server" "restore z-way-server" "changelog versions" "up-downgrade z-way" "nodes (zwave)" "${lockaction} Mx modules" "reboot"`
+            option=`${ZWAY_DIR}bashmenu.bash $_self $OPT "backup z-way-server" "restore z-way-server" "changelog versions" "firmware" "up-downgrade z-way" "nodes (zwave)" "${lockaction} Mx modules" "reboot"`
         else
-            option=`${ZWAY_DIR}bashmenu.bash $_self $OPT "backup z-way-server" "restore z-way-server" "changelog versions" "up-downgrade z-way" "nodes (zwave)" "reboot"`
+            option=`${ZWAY_DIR}bashmenu.bash $_self $OPT "backup z-way-server" "restore z-way-server" "changelog versions" "firmware" "up-downgrade z-way" "nodes (zwave)" "reboot"`
         fi
 
         case "$option" in
             "")
-                echo -n 'usage: '$_self' status|details|top|jobcount|jobqueue|cpu|start|stop|run_in_foreground|logrotate|backup|restore|changelog|up-downgrade|nodes|reboot'
+                echo -n 'usage: '$_self' status|details|top|jobcount|jobqueue|cpu|start|stop|run_in_foreground|logrotate|backup|restore|changelog|firmware|up-downgrade|nodes|reboot'
                 if [ "$LOCKED" != "" ]
                 then
                     echo '|lock|unlock'

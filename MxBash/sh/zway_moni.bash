@@ -16,7 +16,7 @@
 #h Resources:    
 #h Platforms:    Linux
 #h Authors:      peb piet66
-#h Version:      V1.0.0 2024-02-29/peb
+#h Version:      V1.0.0 2024-04-20/peb
 #v History:      V1.0.0 2024-02-28/peb first version
 #h Copyright:    (C) piet66 2024
 #h License:      http://opensource.org/licenses/MIT
@@ -27,7 +27,7 @@
 #-----------
 MODULE='zway_moni.bash'
 VERSION='V1.0.0'
-WRITTEN='2024-02-29/peb'
+WRITTEN='2024-04-20/peb'
 
 PROCESS='z-way-server'
 URL_ZWAY="localhost:8083/ZAutomation/api/v1/devices/"
@@ -128,7 +128,7 @@ fi
 #VmExe
 #    Größe der als ausführbar markierten Speicherseiten des Prozesses. 
 #VmLib
-#    Größe der Shared Memory-Seiten, die in den Adressbereich dies Prozesses einbelendet wurden. 
+#    Größe der Shared Memory-Seiten, die in den Adressbereich dies Prozesses eingeblendet wurden. 
 #    Dies schließt geteilte Seiten aus, die IPC im Stil des System V nutzen. 
 #VmPTE
 #    Größe eines Eintrags in der Page Table 
