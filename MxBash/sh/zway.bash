@@ -42,7 +42,7 @@
 #h Resources:    bashmenu.bash, whiptail
 #h Platforms:    Linux
 #h Authors:      peb piet66
-#h Version:      V3.1.0 2024-06-22/peb
+#h Version:      V3.1.0 2024-09-08/peb
 #v History:      V1.0.0 2017-02-03/peb first version
 #h Copyright:    (C) piet66 2017
 #h License:      http://opensource.org/licenses/MIT
@@ -51,7 +51,7 @@
 
 MODULE='zway.bash'
 VERSION='V3.1.0'
-WRITTEN='2024-06-22/peb'
+WRITTEN='2024-09-08/peb'
 
 #------------
 #b Parameters
@@ -172,7 +172,8 @@ function manage_service
     then
         if [ $(service_running $SERVICE) -eq $NO ]
         then
-            logger -is -t $MODULE "starting  $SERVICE..."
+            logger -i -t $MODULE "starting  $SERVICE..."
+            echo -e "\nstarting  $SERVICE..."
             if [ $(service_manager $SERVICE) != $SYSVINIT ]
             then
                 #echo -e "\n"sudo systemctl reset-failed $SERVICE.service
@@ -202,7 +203,8 @@ function manage_service
     then
         if [ $(service_running $SERVICE) -eq $YES ]
         then
-            logger -is -t $MODULE "stopping  $SERVICE..."
+            logger -i -t $MODULE "stopping  $SERVICE..."
+            echo -e "\nstopping  $SERVICE..."
             if [ $(service_manager $SERVICE) != $SYSVINIT ]
             then
                 echo -e "\n"sudo systemctl stop $SERVICE.service
@@ -380,35 +382,7 @@ case $PARAM1 in
             echo 'parameter $USERPW must be defined to get jobqueue'
         elif [ $(service_running $SERVICE) != $NO ]
         then
-            echo 'jobqueue:'
-            queue=`curl -s -u $USERPW --globoff "$IP:8083/ZWaveAPI/InspectQueue"`
-            #echo $queue
-
-            firstchar=${queue:0:1}
-            if [ "$firstchar" == "[" ]
-            then
-                if [ "$queue" == "[]" ]
-                then
-                    echo ''
-                    echo -n 'current number of jobs in queue: 0'
-                else
-                    if [ "${zwave_devices[0]}" == '' ]
-                    then
-                        . ${ZWAY_DIR}/zwave_devices.bash
-                    fi
-                    lines=`echo $queue | sed 's/\]\],/\\]\],\n/g' | nl`
-                    echo "$lines" | while read line
-                    do
-                        devid=`echo $line | grep -Po '],(\d{1,3}),' | grep -Po '\d*'`
-                        echo $line
-                        echo "  *** node $devid=${zwave_devices[$devid]}"
-                    done
-                    echo ''
-                    echo -n 'current number of jobs in queue: '; echo $queue | sed 's/\]\],/\\]\],\n/g' | wc -l 
-                fi
-            else
-                echo $queue
-            fi
+            ${ZWAY_DIR}jobqueue.bash
         fi
         ;;
     jobcount) 
@@ -793,9 +767,9 @@ case $PARAM1 in
         then
             [ $LOCKED == "no" ]  && lockaction=lock
             [ $LOCKED == "yes" ] && lockaction=unlock
-            option=`${ZWAY_DIR}bashmenu.bash $_self $OPT "backup z-way-server" "restore z-way-server" "changelog versions" "firmware" "up-downgrade z-way" "nodes (zwave)" "${lockaction} Mx modules" "reboot"`
+            option=`${ZWAY_DIR}bashmenu.bash $_self $OPT "backup z-way-server" "restore z-way-server" "changelog versions" "firmware updates" "up-downgrade z-way" "nodes (zwave)" "${lockaction} Mx modules" "reboot"`
         else
-            option=`${ZWAY_DIR}bashmenu.bash $_self $OPT "backup z-way-server" "restore z-way-server" "changelog versions" "firmware" "up-downgrade z-way" "nodes (zwave)" "reboot"`
+            option=`${ZWAY_DIR}bashmenu.bash $_self $OPT "backup z-way-server" "restore z-way-server" "changelog versions" "firmware updates" "up-downgrade z-way" "nodes (zwave)" "reboot"`
         fi
 
         case "$option" in
