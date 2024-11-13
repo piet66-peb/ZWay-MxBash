@@ -12,7 +12,7 @@
 #h Resources:    
 #h Platforms:    Linux
 #h Authors:      peb piet66
-#h Version:      V1.0.0 2024-08-13/peb
+#h Version:      V1.0.0 2024-09-17/peb
 #v History:      V1.0.0 2024-08-13/peb first version
 #h Copyright:    (C) piet66 2024
 #h License:      http://opensource.org/licenses/MIT
@@ -23,7 +23,10 @@
 #-----------
 MODULE='zway_info.bash'
 VERSION='V1.0.0'
-WRITTEN='2024-08-13/peb'
+WRITTEN='2024-09-17/peb'
+
+SIGINT=2
+
 
 #b Parameters
 #------------
@@ -66,6 +69,8 @@ function service_running
 
 #b Main
 #------
+trap 'exit 200' $SIGINT
+
 stop_run=false
 while  [ $stop_run == false ]
 do
@@ -114,6 +119,7 @@ do
         if [ "$SECS" != '' ]
         then
             echo ''
+            echo 'sleeping for '$SECS' seconds, break with Strg+C'
             sleep $SECS
             if [ $? -ne 0 ]
             then

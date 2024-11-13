@@ -42,7 +42,7 @@
 #h Resources:    bashmenu.bash, whiptail
 #h Platforms:    Linux
 #h Authors:      peb piet66
-#h Version:      V3.1.0 2024-09-08/peb
+#h Version:      V3.1.0 2024-09-17/peb
 #v History:      V1.0.0 2017-02-03/peb first version
 #h Copyright:    (C) piet66 2017
 #h License:      http://opensource.org/licenses/MIT
@@ -51,7 +51,7 @@
 
 MODULE='zway.bash'
 VERSION='V3.1.0'
-WRITTEN='2024-09-08/peb'
+WRITTEN='2024-09-17/peb'
 
 #------------
 #b Parameters
@@ -97,6 +97,8 @@ WDOG_ACTIVE=$MXWATCHDOG/sh/WDOG_ACTIVE
 MXMQTTSUB=$USERMODULES/MxMQTTSub
 MXMQTTPUB=$USERMODULES/MxMQTTPub
 [ ! -e $MXMQTTSUB ] && [ ! -e $MXMQTTPUB ] && MQTT_PORT=
+
+SLEEP_JOBQUEUE=60
 
 #-----------
 #b Variables
@@ -382,7 +384,8 @@ case $PARAM1 in
             echo 'parameter $USERPW must be defined to get jobqueue'
         elif [ $(service_running $SERVICE) != $NO ]
         then
-            ${ZWAY_DIR}jobqueue.bash
+            ${ZWAY_DIR}jobqueue.bash $SLEEP_JOBQUEUE
+            exit $?
         fi
         ;;
     jobcount) 
