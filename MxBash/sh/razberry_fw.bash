@@ -5,15 +5,14 @@
 #h Type:         Linux shell script
 #h Purpose:      get Razberry/ UZB firmware
 #h Project:      
-#h Usage:        export no_hyperlinks=true|false
-#h               ./razberry_fw.bash
+#h Usage:        ./razberry_fw.bash
 #h Result:       
 #h Examples:     
 #h Outline:      
 #h Resources:    
 #h Platforms:    Linux
 #h Authors:      peb piet66
-#h Version:      V1.0.0 2024-07-29/peb
+#h Version:      V1.0.0 2024-11-17/peb
 #v History:      V1.0.0 2024-06-15/peb first version
 #h Copyright:    (C) piet66 2024
 #h License:      http://opensource.org/licenses/MIT
@@ -25,11 +24,12 @@
 #-----------
 MODULE='razberry_fw.bash'
 VERSION='V1.0.0'
-WRITTEN='2024-07-29/peb'
+WRITTEN='2024-11-17/peb'
 
 #-----------
 #b Variables
 #-----------
+expand_hyperlinks=false
 
 #-----------
 #b Functions
@@ -43,12 +43,19 @@ function gr2 {
 function print_link {
     url="$2"
     text="$4"
-    if [ "$no_hyperlinks" == true ]
+    if [ "$expand_hyperlinks" == true ]
     then
         echo -e "${1}${text}:"
         echo -e "${3}${url}"
     else
         echo -e "\e]8;;$url\e\\$text\e]8;;\e\\"
+    fi
+}
+function set_expand_hyperlinks {
+    read -p  'expand hyperlinks? [yN]: ' inputvar
+    if [ "$inputvar" == y ]
+    then
+        expand_hyperlinks=true
     fi
 }
 
@@ -61,6 +68,8 @@ function print_link {
 #----------
     if [ -d /opt/z-way-server ]
     then
+        set_expand_hyperlinks
+
         #----------
         #b Razberry
         #----------
@@ -168,7 +177,4 @@ function print_link {
     print_link '' "$url" '  ' "$text"
 
     echo ''
-    hint1='If your terminal does not support hyperlinks, call before:'
-    hint2='export no_hyperlinks=true'
-    echo -e "\e[2m$hint1\n$hint2\e[0m"
 
