@@ -12,7 +12,7 @@
 #h Resources:    
 #h Platforms:    Linux
 #h Authors:      peb piet66
-#h Version:      V1.0.0 2024-11-17/peb
+#h Version:      V1.0.0 2024-11-30/peb
 #v History:      V1.0.0 2024-06-15/peb first version
 #h Copyright:    (C) piet66 2024
 #h License:      http://opensource.org/licenses/MIT
@@ -24,7 +24,7 @@
 #-----------
 MODULE='razberry_fw.bash'
 VERSION='V1.0.0'
-WRITTEN='2024-11-17/peb'
+WRITTEN='2024-11-30/peb'
 
 #-----------
 #b Variables
@@ -95,14 +95,15 @@ function set_expand_hyperlinks {
             fi
             BOOTLOADERVERSION=`gr version`
 
-            url="https://service.z-wave.me/expertui/uzb/"
+            URL="https://service.z-wave.me/expertui"
+            url="${URL}/uzb/"
             url="$url""?vendorId=$VENDORID"
             url="$url""&appVersionMajor=$MAJOR"
             url="$url""&appVersionMinor=$MINOR"
             url="$url""&bootloaderCRC=$LOADER"
             url="$url""&token=all&uuid=1"
-            url="$url""&bootloaderVersion=$BOOTLOADERVERSION"
-            response=`curl -s "$url" --get --data-urlencode ''`
+            url0="$url""&bootloaderVersion=$BOOTLOADERVERSION"
+            response=`curl -s "$url0" --get --data-urlencode ''`
             echo $response | grep 'data' >/dev/null 2>&1
             if [ $? -ne 0 ]
             then
@@ -112,9 +113,7 @@ function set_expand_hyperlinks {
             fi
             if [ "$response"  == '{"data":[]}' ]
             then
-                echo no firmware upgrade available
                 response=
-                echo ''
             fi
 
             if [ "$response" != "" ]
@@ -155,26 +154,35 @@ function set_expand_hyperlinks {
                         fi
                         echo -e '\t'released: $released, $enabled
                         echo -en '\t'file name: $fileURL
-                        download="https://service.z-wave.me/expertui/uzb/$fileURL"
-                        text=' >>link to file'
-                        print_link '\n\t' "$download" '\t   ' "$text"
+                        download="${URL}/uzb/$fileURL"
+                        text1=' >>link to file'
+                        print_link '\n\t' "$download" '\t   ' "$text1"
                         echo ''
                     fi
                 done <<< "$(echo -e "$response" | sed -e 's/{/\n{/g')"
+            fi #if [ "$response" != "" ]
+
+            if [ "$download"  == '' ]
+            then
+                echo no firmware upgrade available
+                echo ''
             fi
-        fi
-    fi
+            text2='>>link to description'
+            print_link '' "$url0" '  ' "$text2"
+        fi #if [ -f "$DATA" ]
+    fi #if [ -d /opt/z-way-server ]
 
-    text='>>link to source file'
-    print_link '' "$url" '  ' "$text"
+    url3="${URL}/uzb-stats/versions-graph.html?hw=$VENDORID"
+    text3='>>link to firmware tree (active)'
+    print_link '' "$url3" '  ' "$text3"
 
-    url="https://service.z-wave.me/expertui/uzb-stats/versions-graph.html?hw=$VENDORID&with_hidden"
-    text='>>link to firmware tree'
-    print_link '' "$url" '  ' "$text"
+    url3="${url3}&with_hidden"
+    text3='>>link to firmware tree (all)'
+    print_link '' "$url3" '  ' "$text3"
 
-    url="https://z-wave.me/support/uzbrazberry-firmwares/"
-    text='>>changelog'
-    print_link '' "$url" '  ' "$text"
+    url4="https://z-wave.me/support/uzbrazberry-firmwares/"
+    text4='>>firmwares changelog'
+    print_link '' "$url4" '  ' "$text4"
 
     echo ''
 
