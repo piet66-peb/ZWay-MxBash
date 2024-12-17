@@ -42,7 +42,7 @@
 #h Resources:    bashmenu.bash, whiptail
 #h Platforms:    Linux
 #h Authors:      peb piet66
-#h Version:      V3.1.0 2024-09-17/peb
+#h Version:      V3.1.0 2024-12-17/peb
 #v History:      V1.0.0 2017-02-03/peb first version
 #h Copyright:    (C) piet66 2017
 #h License:      http://opensource.org/licenses/MIT
@@ -51,7 +51,7 @@
 
 MODULE='zway.bash'
 VERSION='V3.1.0'
-WRITTEN='2024-09-17/peb'
+WRITTEN='2024-12-17/peb'
 
 #------------
 #b Parameters
@@ -506,8 +506,13 @@ case $PARAM1 in
         else
             if [ $(service_running $SERVICE) -eq $YES ]
             then
-                echo stop service $SERVICE first, break!
-                exit 1
+                echo It is recommended to stop service $SERVICE first!
+                echo ''
+                read -p  'continue anyway? [yN]: ' inputvar
+                if [ "$inputvar" != y ]
+                then
+                    exit 1
+                fi
             fi
 
             SOURCE_FOLDER=z-way-server
