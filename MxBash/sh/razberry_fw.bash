@@ -12,7 +12,7 @@
 #h Resources:    
 #h Platforms:    Linux
 #h Authors:      peb piet66
-#h Version:      V1.0.0 2024-11-30/peb
+#h Version:      V1.0.0 2025-01-03/peb
 #v History:      V1.0.0 2024-06-15/peb first version
 #h Copyright:    (C) piet66 2024
 #h License:      http://opensource.org/licenses/MIT
@@ -24,7 +24,7 @@
 #-----------
 MODULE='razberry_fw.bash'
 VERSION='V1.0.0'
-WRITTEN='2024-11-30/peb'
+WRITTEN='2025-01-03/peb'
 
 #-----------
 #b Variables
@@ -95,6 +95,10 @@ function set_expand_hyperlinks {
             fi
             BOOTLOADERVERSION=`gr version`
 
+            echo current firmware version: $MAJOR.$MINOR
+            echo current bootloader: $LOADER
+            echo ''
+
             URL="https://service.z-wave.me/expertui"
             url="${URL}/uzb/"
             url="$url""?vendorId=$VENDORID"
@@ -153,6 +157,7 @@ function set_expand_hyperlinks {
                             echo -e '\t'target version:: $targetBootloaderCRC
                         fi
                         echo -e '\t'released: $released, $enabled
+                        echo -e '\t'comment: $comment
                         echo -en '\t'file name: $fileURL
                         download="${URL}/uzb/$fileURL"
                         text1=' >>link to file'
