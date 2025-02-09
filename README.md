@@ -26,6 +26,13 @@ Z-Way.
   + USERMODULES="/opt/z-way-server/automation/userModules"
   + PATH="$USERMODULES/MxBash/sh/:$PATH"
 
+or download it with wget:
+```sh
+url=https://github.com/piet66-peb/ZWay-MxBash/raw/refs/heads/main/download_MxBash.bash
+cd /tmp; wget -q -O - $url | sudo bash
+
+```
+
 ## Start the Menu
 
 zway.bash
@@ -35,7 +42,7 @@ zway.bash
 This script can use the new start/ stop mechanism **Systemd**, availabe in
 many current Linux distributions. To take 
 advantage of the benefits, follow the installation instructions 
-in [Using Z-Way with Systemd](https://github.com/piet66-peb/ZWay-MxSystemd).
+in [Using Z-Way with Systemd](https://github.com/piet66-peb/ZWay-MxBash).
 
 ## License: MIT
 
