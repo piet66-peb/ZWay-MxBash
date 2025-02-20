@@ -16,7 +16,7 @@
 #h Resources:    
 #h Platforms:    Linux
 #h Authors:      peb piet66
-#h Version:      V1.1.0 2025-02-07/peb
+#h Version:      V1.1.0 2025-02-20/peb
 #v History:      V1.0.0 2024-10-02/peb first version
 #h Copyright:    (C) piet66 2024
 #h
@@ -26,18 +26,37 @@
 #-----------
 MODULE='download_MxBash.bash'
 VERSION='V1.1.0'
-WRITTEN='2025-02-07/peb'
+WRITTEN='2025-02-20/peb'
 
 #b Variables
 #-----------
 pack=MxBash
 
-#b Commands
-#----------
 gitpack=ZWay-$pack
 url=https://github.com/piet66-peb/$gitpack/archive/refs/heads/main.zip
+gitzip=$gitpack.zip
+module=${gitpack}-main/${pack}
 tardir=/opt/z-way-server/automation/userModules/
-cd /tmp; wget -O $gitpack.zip $url
-sudo unzip ${gitpack}.zip
-sudo cp -dpR ${gitpack}-main/${pack} $tardir
+tmp=/tmp
+
+#b Commands
+#----------
+set -e  # exit if any command fails
+
+echo cd $tmp...
+pushd $tmp >/dev/null
+
+echo downloading $gitzip...
+[ -e "$gitzip" ] && sudo rm $gitzip
+wget -nv -O $gitzip $url
+
+echo extracting $gitzip...
+[ -e "$module" ] && sudo rm -R $module
+sudo unzip -q -o $gitzip
+
+echo copying $pack to $tardir...
+sudo cp -dpR $module $tardir
+
+echo done.
+popd >/dev/null
 
