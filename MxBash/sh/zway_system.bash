@@ -16,7 +16,7 @@
 #h Resources:    
 #h Platforms:    Linux
 #h Authors:      peb piet66
-#h Version:      V1.0.0 2025-02-04/peb
+#h Version:      V1.0.0 2025-05-01/peb
 #v History:      V1.0.0 2025-02-04/peb first version
 #h Copyright:    (C) piet66 2025
 #h License:      http://opensource.org/licenses/MIT
@@ -25,7 +25,7 @@
 
 MODULE='zway.bash'
 VERSION='V1.0.0'
-WRITTEN='2025-02-04/peb'
+WRITTEN='2025-05-01/peb'
 
 #----------
 #b Commands

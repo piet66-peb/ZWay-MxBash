@@ -12,7 +12,7 @@
 #h Resources:    
 #h Platforms:    Linux
 #h Authors:      peb piet66
-#h Version:      V1.0.0 2025-01-03/peb
+#h Version:      V1.0.0 2025-05-31/peb
 #v History:      V1.0.0 2024-06-15/peb first version
 #h Copyright:    (C) piet66 2024
 #h License:      http://opensource.org/licenses/MIT
@@ -24,7 +24,7 @@
 #-----------
 MODULE='razberry_fw.bash'
 VERSION='V1.0.0'
-WRITTEN='2025-01-03/peb'
+WRITTEN='2025-05-31/peb'
 
 #-----------
 #b Variables
@@ -107,6 +107,7 @@ function set_expand_hyperlinks {
             url="$url""&bootloaderCRC=$LOADER"
             url="$url""&token=all&uuid=1"
             url0="$url""&bootloaderVersion=$BOOTLOADERVERSION"
+
             response=`curl -s "$url0" --get --data-urlencode ''`
             echo $response | grep 'data' >/dev/null 2>&1
             if [ $? -ne 0 ]
@@ -141,6 +142,11 @@ function set_expand_hyperlinks {
                         fi
 
                         echo $comment
+                        echo -e '\torg family: ' `gr2 org_family`
+                        echo -e '\tfw family: ' `gr2 fw_family`
+                        echo -e '\tchip family: ' `gr2 chip_family`
+                        echo -e '\tchip id: ' `gr2 chip_id`
+
                         if [ $bootloader -eq 0 ]
                         then
                             # firmware update
