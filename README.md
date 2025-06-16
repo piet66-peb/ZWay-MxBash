@@ -29,7 +29,7 @@ Z-Way.
 or download it with wget:
 ```sh
 url=https://github.com/piet66-peb/ZWay-MxBash/raw/refs/heads/main/download_MxBash.bash
-cd /tmp; wget -q -O - $url | sudo bash
+cd /tmp; wget -q -O - $url | bash
 
 ```
 
