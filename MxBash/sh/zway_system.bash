@@ -16,7 +16,7 @@
 #h Resources:    
 #h Platforms:    Linux
 #h Authors:      peb piet66
-#h Version:      V1.0.0 2025-05-01/peb
+#h Version:      V1.0.0 2025-06-15/peb
 #v History:      V1.0.0 2025-02-04/peb first version
 #h Copyright:    (C) piet66 2025
 #h License:      http://opensource.org/licenses/MIT
@@ -25,7 +25,7 @@
 
 MODULE='zway.bash'
 VERSION='V1.0.0'
-WRITTEN='2025-05-01/peb'
+WRITTEN='2025-06-15/peb'
 
 #----------
 #b Commands
@@ -51,16 +51,17 @@ then
     APIVersion=`gr APIVersion`
     PRODTYPE=`gr manufacturerProductType`
     PRODID=`gr manufacturerProductId`
-    bootloader=`gr bootloader`
-    if [ "$bootloader" == "null" ] || [ "$bootloader" == "" ]
-    then
-       bootloader=`gr bootloaderCRC`
-       if [ "$bootloader" == "null" ] || [ "$bootloader" == "" ]
-       then
-           bootloader=`gr crc`
-       fi
-    fi
-    echo $vendor'('$manufacturerId')' $ZWaveChip $SDK $APIVersion/$bootloader $PRODTYPE/$PRODID
+    #bootloader=`gr bootloader`
+    #if [ "$bootloader" == "null" ] || [ "$bootloader" == "" ]
+    #then
+    #   bootloader=`gr bootloaderCRC`
+    #   if [ "$bootloader" == "null" ] || [ "$bootloader" == "" ]
+    #   then
+    #       bootloader=`gr crc`
+    #   fi
+    #fi
+    BOOTLOADERVERSION=`gr version`
+    echo $vendor'('$manufacturerId')' $ZWaveChip SDK=$SDK API=$APIVersion bootloader=$BOOTLOADERVERSION $PRODTYPE/$PRODID
 fi
 cd /opt/z-way-server; LD_LIBRARY_PATH=./libs ./z-way-server -h 2>/dev/null | head -n 1
 

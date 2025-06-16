@@ -12,7 +12,7 @@
 #h Resources:    
 #h Platforms:    Linux
 #h Authors:      peb piet66
-#h Version:      V1.0.0 2025-05-31/peb
+#h Version:      V1.0.0 2025-06-16/peb
 #v History:      V1.0.0 2024-06-15/peb first version
 #h Copyright:    (C) piet66 2024
 #h License:      http://opensource.org/licenses/MIT
@@ -24,7 +24,7 @@
 #-----------
 MODULE='razberry_fw.bash'
 VERSION='V1.0.0'
-WRITTEN='2025-05-31/peb'
+WRITTEN='2025-06-16/peb'
 
 #-----------
 #b Variables
@@ -77,26 +77,37 @@ function set_expand_hyperlinks {
         DATA=/opt/z-way-server/config/zddx/0e0d0c0b-DevicesData.xml
         if [ -f "$DATA" ]
         then
+            UUID=`gr uuid`
+            if [ "$UUID" == "null" ] || [ "$UUID" == "" ]
+            then
+                UUID=1
+            fi
             VENDORID=`gr manufacturerId`
             MAJOR=`gr APIVersionMajor`
             MINOR=`gr APIVersionMinor`
-            LOADER=`gr bootloader`
-            if [ "$LOADER" == "null" ] || [ "$LOADER" == "" ]
+            LOADERCRC=`gr bootloader`
+            if [ "$LOADERCRC" == "null" ] || [ "$LOADERCRC" == "" ]
             then
-               LOADER=`gr bootloaderCRC`
-               if [ "$LOADER" == "null" ] || [ "$LOADER" == "" ]
+               LOADERCRC=`gr bootloaderCRC`
+               if [ "$LOADERCRC" == "null" ] || [ "$LOADERCRC" == "" ]
                then
-                   LOADER=`gr crc`
+                   LOADERCRC=`gr crc`
                fi
-               if [ "$LOADER" == "null" ] || [ "$LOADER" == "" ]
+               if [ "$LOADERCRC" == "null" ] || [ "$LOADERCRC" == "" ]
                then
-                   LOADER=0
+                   LOADERCRC=0
                fi
             fi
             BOOTLOADERVERSION=`gr version`
 
-            echo current firmware version: $MAJOR.$MINOR
-            echo current bootloader: $LOADER
+            #get zway version:
+            ZWAY=`cd /opt/z-way-server; LD_LIBRARY_PATH=./libs ./z-way-server -h 2>/dev/null | head -n 1 | cut -f3 -d' '`
+
+            echo Current versions
+            echo -e '\t'zway version: $ZWAY
+            echo -e '\t'firmware version: $MAJOR.$MINOR
+            echo -e '\t'bootloader CRC: $LOADERCRC
+            echo -e '\t'bootloader version: $BOOTLOADERVERSION
             echo ''
 
             URL="https://service.z-wave.me/expertui"
@@ -104,11 +115,13 @@ function set_expand_hyperlinks {
             url="$url""?vendorId=$VENDORID"
             url="$url""&appVersionMajor=$MAJOR"
             url="$url""&appVersionMinor=$MINOR"
-            url="$url""&bootloaderCRC=$LOADER"
-            url="$url""&token=all&uuid=1"
-            url0="$url""&bootloaderVersion=$BOOTLOADERVERSION"
+            url="$url""&bootloaderCRC=$LOADERCRC"
+            url="$url""&zway=$ZWAY&uuid=$UUID"
+            url0="$url""&token=all"
+            #echo $url0
 
             response=`curl -s "$url0" --get --data-urlencode ''`
+            #echo $response
             echo $response | grep 'data' >/dev/null 2>&1
             if [ $? -ne 0 ]
             then
@@ -136,7 +149,7 @@ function set_expand_hyperlinks {
                         bootloader=`echo $fileURL | grep -c 'bootloader'`
     
                         bootloaderCRC=`gr2 bootloaderCRC`
-                        if [ $bootloader -eq 0 ] && [ "$bootloaderCRC" != "$LOADER" ]
+                        if [ $bootloader -eq 0 ] && [ "$bootloaderCRC" != "$LOADERCRC" ]
                         then
                             continue
                         fi
@@ -150,15 +163,11 @@ function set_expand_hyperlinks {
                         if [ $bootloader -eq 0 ]
                         then
                             # firmware update
-                            echo -e '\t'current bootloaderCRC: $bootloaderCRC
-                            echo -e '\t'current version: $MAJOR.$MINOR
                             targetAppVersionMajor=`gr2 targetAppVersionMajor`
                             targetAppVersionMinor=`gr2 targetAppVersionMinor`
                             echo -e '\t'target version:: $targetAppVersionMajor.$targetAppVersionMinor
                         else
                             # bootloader update
-                            echo -e '\t'current bootloaderCRC: $bootloaderCRC
-                            echo -e '\t'current version: $LOADER
                             targetBootloaderCRC=`gr2 targetBootloaderCRC`
                             echo -e '\t'target version:: $targetBootloaderCRC
                         fi
